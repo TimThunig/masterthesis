@@ -1,0 +1,24 @@
+<div>
+    <div class="row">
+
+        <div class="col-lg-6" ng-show="stream.favoriteNews.length > 0">
+            <label class="section-label">Social Favorites Newsfeed</label>
+            <ul>
+                <li ng-repeat="fav in stream.favoriteNews">
+                    <a ng-href="{{adminUrl}}{{fav.actorId}}?tab=profile">{{fav.actorId}}</a> has changed {{fav.type}} <a ng-href="#/process-definition/{{fav.objectRef}}/runtime?detailsTab={{fav.type}}"> {{fav.title}}</a> on {{fav.creationTime}}
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-lg-6">
+            <label class="section-label">Social Newsfeed</label>
+            <ul>
+               <li ng-repeat="news in stream.news">
+                   <a ng-href="{{adminUrl}}{{news.actorId}}?tab=profile">{{news.actorId}}</a> has changed {{news.type}} <a ng-href="#/process-definition/{{news.objectRef}}/runtime?detailsTab={{news.type}}">{{news.title}}</a> on {{news.creationTime}}
+               </li>
+            </ul>
+        </div>
+
+    </div>
+
+</div>

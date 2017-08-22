@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cockpit.sample">
+
+    <resultMap id="newsMap" type="org.camunda.bpm.cockpit.plugin.sample.dto.NewsDto">
+        <result property="id" column="ID_" />
+        <result property="actorId" column="ACTOR_ID_" />
+        <result property="type" column="TYPE_" />
+        <result property="action" column="ACTION_" />
+        <result property="objectKey" column="OBJECT_KEY_" />
+        <result property="creationTime" column="CREATION_TIME_"/>
+        <result property="title" column="TITLE_" />
+        <result property="objectRef" column="OBJECT_REF_" />
+    </resultMap>
+
+    <select id="selectNews" resultMap="newsMap">
+        SELECT * FROM ACT_GE_NEWS ORDER BY CREATION_TIME_ DESC;
+    </select>
+
+    <insert id="insertNews" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.NewsDto">
+        INSERT INTO ACT_GE_NEWS (ACTOR_ID_, TYPE_, ACTION_, OBJECT_KEY_, TITLE_, OBJECT_REF_)
+        VALUES (#{parameter.actorId}, #{parameter.type}, #{parameter.action}, #{parameter.objectKey}, #{parameter.title}, #{parameter.objectRef});
+    </insert>
+
+    <select id="selectFeed" resultMap="newsMap" parameterType="String">
+        SELECT news.*
+        FROM ACT_GE_FEED feed
+        INNER JOIN ACT_GE_NEWS news
+         ON feed.OBJECT_KEY_ = news.OBJECT_KEY_
+        WHERE feed.PROFILE_ID_ = #{parameter};
+    </select>
+
+    <insert id="insertFeed" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.FeedDto">
+        INSERT INTO ACT_GE_FEED(PROFILE_ID_, OBJECT_KEY_, TYPE_)
+        VALUES (#{parameter.profileId}, #{parameter.objectKey}, #{parameter.type});
+    </insert>
+
+    <delete id="deleteFeed" parameterType="map">
+        DELETE FROM ACT_GE_FEED
+        WHERE PROFILE_ID_ = #{parameter.profileId} AND OBJECT_KEY_ = #{parameter.objectKey} AND TYPE_ = #{parameter.type};
+    </delete>
+
+</mapper>

@@ -1,0 +1,29 @@
+<script type="text/ng-template" id="wikiModalView">
+
+    <div class="modal-header">
+        <h3>Wiki part edition</h3>
+    </div>
+    <form name="reportForm" novalidate>
+
+        <div class="modal-body">
+            <div class="dropdown">
+                <a class="dropdown-toggle">
+                    {{selectedRevision.revision}}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="history in wikiPart.history">
+                        <a ng-click="changeRevision(history)">{{history.revision}}</a>
+                    </li>
+                </ul>
+            </div>
+            <textarea style="width:100%; height:100%" ng-model="newPart.body"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-link" ng-click="cancel()">Cancel</button>
+            <button ng-disabled="reportForm.$error.Required" class="btn btn-primary" ng-click="ok()" type="submit">
+                Submit
+            </button>
+        </div>
+    </form>
+</script>

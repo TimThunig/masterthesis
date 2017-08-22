@@ -1,0 +1,54 @@
+<div>
+    <div class="row">
+        <div class="col-lg-4">
+            <label class="section-label">Filter</label>
+            <input type="text" ng-model="filter" ng-init="filter=''">
+        </div>
+        <label class="section-label col-lg-2">Types to display: </label>
+        <div class="dropdown col-lg-2">
+            <a class="dropdown-toggle">
+                {{typeFilter.name}}
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li ng-repeat="filterType in typeFilterOptions">
+                    <a ng-click="changeTypeFilter(filterType)">{{filterType.name}}</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-2 col-lg-offset-2">
+            <i style="float:right;" class="glyphicon glyphicon-plus" ng-click="createReport()"></i>
+        </div>
+    </div>
+    <table class="process-instances cam-table">
+        <thead>
+            <tr>
+                <th>Topic</th>
+                <th>Reporter</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>
+                    <i class="glyphicon glyphicon-thumbs-up" title="Upvotes"></i>
+                    <span>/</span>
+                    <i class="glyphicon glyphicon-star" title="Followed"></i>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="report in reports | filter:filter | filter:filterTypeFunc">
+                <td><span ng-click="showReport(report)">{{report.topic}}</span></td>
+                <td><a ng-href="{{adminUrl}}{{report.reporterId}}?tab=profile">{{report.reporterId}}</a></td>
+                <td>{{report.type}}</td>
+                <td>
+                    <i class="circle" state-circle ng-class="report.status === 0 ? circle-red : circle-green"></i>
+                </td>
+                <td>
+                    <span>{{report.upvotes}}/</span>
+                    <i ng-class="isFollowed(report) ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'"
+                    ng-click="follow(report)"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

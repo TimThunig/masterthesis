@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cockpit.sample">
+
+    <resultMap id="socialProfileMap" type="org.camunda.bpm.cockpit.plugin.sample.dto.SocialProfileDto">
+        <result property="id" column="ID_"/>
+        <result property="userId" column="USER_ID_"/>
+        <result property="userName" column="USER_ID_"/>
+        <result property="email" column="EMAIL_"/>
+        <collection property="followedWikis" ofType="String">
+            <result column="followed_wiki_id_" />
+        </collection>
+        <collection property="followedReports" ofType="String">
+            <result column="followed_report_id_" />
+        </collection>
+    </resultMap>
+
+    <select id="selectSocialProfile" resultMap="socialProfileMap" parameterType="String">
+       SELECT
+        profile.*,
+        reports.OBJECT_KEY_ AS followed_report_id_,
+        wikis.OBJECT_KEY_ AS followed_wiki_id_
+       FROM ACT_GE_SOCIAL_PROFILE profile
+       LEFT JOIN ACT_GE_FEED reports
+        ON reports.PROFILE_ID_ = profile.ID_ AND reports.TYPE_ = 'report'
+       LEFT JOIN ACT_GE_FEED wikis
+        ON wikis.PROFILE_ID_ = profile.ID_ AND wikis.TYPE_ = 'wiki'
+       WHERE USER_ID_ = #{parameter};
+
+    </select>
+
+    <select id="selectReportFeed" parameterType="String">
+        SELECT OBJECT_KEY_ FROM ACT_GE_FEED
+        WHERE PROFILE_ID_ = #{parameter} AND TYPE_ = 'report';
+    </select>
+
+    <select id="selectReportWiki" parameterType="String">
+        SELECT OBJECT_KEY_ FROM ACT_GE_FEED
+        WHERE PROFILE_ID_ = #{parameter} AND TYPE_ = 'wiki';
+   </select>
+
+    <insert id="insertSocialProfile" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.SocialProfileDto">
+        INSERT INTO ACT_GE_SOCIAL_PROFILE (USER_ID_, NAME_, EMAIL_)
+        VALUES (${parameter.userId}, ${parameter.userName}, ${parameter.email});
+    </insert>
+
+</mapper>

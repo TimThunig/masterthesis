@@ -1,0 +1,85 @@
+<script type="text/ng-template" id="ratingModalView">
+
+    <div class="modal-header">
+        <h3>{{process.key}}</h3>
+        Meta-Information
+    </div>
+    <div class="modal-body">
+
+        <div class="form-group">
+            <label class="section-label">Process owner:</label>
+            <a>{{process.ownerId}}</a>
+
+            <i class="glyphicon glyphicon-pencil" ng-click="canChangeOwner = !canChangeOwner; canAddDev = false;" style="margin-left:30px;"></i>
+
+            <span class="dropdown" ng-show="canChangeOwner">
+                <a class="dropdown-toggle">
+                    {{process.ownerId}}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="user in users">
+                        <a ng-click="changeOwner(user)">{{user.id}}</a>
+                    </li>
+                </ul>
+            </span>
+
+        </div>
+
+        <div class="form-group">
+            <label class="section-label">Process developer:</label>
+
+            <i class="glyphicon glyphicon-pencil" ng-click="canAddDev = !canAddDev; canChangeOwner = false;" style="margin-left:30px;"></i>
+
+            <span class="dropdown" ng-show="canAddDev">
+                <a class="dropdown-toggle">
+                    {{user.id}}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="user in unselectedDevs">
+                        <a ng-click="addDev(user)">{{user.id}}</a>
+                    </li>
+                </ul>
+            </span>
+
+            <ul>
+                <li ng-repeat="dev in process.developer">
+                    <a ng-init="dev.hovered = false" ng-mouseleave="dev.hovered = false"
+                       ng-mouseenter="dev.hovered=true">{{dev.userId}}</a>
+                    <span class="badge" style="margin-left:5px;" ng-show="dev.hovered" ng-click="deleteDev(dev)">X</span>
+                </li>
+            </ul>
+
+        </div>
+
+        <div class="form-group">
+            <label class="section-label">Rating:</label>
+            <div style="margin-left:25px;">
+                <rating ng-model="process.ratingValue" readonly="true"></rating>
+                <span  tooltip-placement="left" tooltip="Average rating (number of raters)">{{process.ratingValue}} ({{process.raters.length}}) </span>
+                <a ng-click="isReadonly = !isReadonly" ng-init="isReadonly=true">rate</a>
+            </div>
+            <div style="margin-left:25px" ng-show="!isReadonly"><rating ng-model="rating"  readonldy = !isReadonly" ng-click="rate()"></rating></div>
+        </div>
+
+        <div class="form-group">
+            <label class="section-label">Process tags:</label>
+            <div>
+                <button class="btn btn-primary" ng-repeat="tag in process.tags" ng-init="tag.hovered = false" ng-mouseleave="tag.hovered = false"
+                        ng-mouseenter="tag.hovered=true" style="margin-right:10px; margin-top:10px;">
+                    {{tag.name}}<span class="badge" style="margin-left:5px;" ng-show="tag.hovered" ng-click="deleteTag(tag)">X</span>
+                </button>
+                <a ng-click="canAddTag=true" ng-show="!canAddTag">Add new tag...</a>
+                <input ng-keyup="$event.keyCode === 13 && addTag()" ng-model="ctrl.newTag" ng-show="canAddTag"
+                       tooltip-placement="top" tooltip="Press enter to submit">
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" type="submit">
+            OK
+        </button>
+    </div>
+</script>

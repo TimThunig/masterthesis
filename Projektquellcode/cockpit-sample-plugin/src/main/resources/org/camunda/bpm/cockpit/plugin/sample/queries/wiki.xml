@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cockpit.sample">
+
+    <resultMap id="wikiMap" type="org.camunda.bpm.cockpit.plugin.sample.dto.WikiDto">
+        <result property="id" column="ID_" />
+        <result property="processId" column="PROCESS_ID_" />
+        <result property="creatorId" column="CREATOR_ID_" />
+        <result property="creationTime" column="CREATION_TIME_" />
+        <result property="lastModified" column="LAST_MODIFIED_" />
+        <result property="processName" column="PROCESS_NAME_"/>
+        <collection property="parts" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.PartDto">
+            <result property="id" column="part_id_"/>
+            <result property="title" column="TITLE_" />
+            <result property="body" column="part_body_" />
+            <result property="creationTime" column="part_creation_time_" />
+            <result property="creatorId" column="part_creator_id_" />
+            <result property="wikiId" column="WIKI_ID_" />
+            <collection property="history" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.RevisionDto">
+                <result property="id" column="rev_id_"/>
+                <result property="revision" column="REVISION_" />
+                <result property="partId" column="PART_ID_" />
+                <result property="body" column="rev_body_" />
+                <result property="modifierId" column="MODIFIER_ID_" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectWiki" resultMap="wikiMap" parameterType="String">
+        SELECT
+        wiki.*,
+        part.ID_ as part_id_,
+        part.TITLE_ ,
+        part.BODY_ as part_body_,
+        part.CREATION_TIME_ as part_creation_time_,
+        part.CREATOR_ID_ as part_creator_id,
+        rev.ID_ as rev_id_,
+        rev.REVISION_ ,
+        rev.PART_ID_,
+        rev.BODY_ as rev_body_,
+        rev.MODIFIER_ID_
+        FROM ACT_GE_WIKI wiki
+        LEFT JOIN ACT_GE_PART part
+          ON wiki.ID_ = part.WIKI_ID_
+        LEFT JOIN ACT_GE_REVISION rev
+          ON rev.PART_ID_ = part.ID_
+        WHERE wiki.PROCESS_ID_ = #{parameter};
+    </select>
+
+    <insert id="insertWiki" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.WikiDto">
+        INSERT INTO ACT_GE_WIKI (PROCESS_ID_, CREATOR_ID_, PROCESS_NAME_)
+        VALUES (#{parameter.processId}, #{parameter.creatorId}, #{parameter.processName});
+    </insert>
+
+    <insert id="insertPart" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.PartDto">
+        INSERT INTO ACT_GE_PART (TITLE_, BODY_, CREATOR_ID_, WIKI_ID_)
+        VALUES (#{parameter.title}, #{parameter.body}, #{parameter.creatorId}, #{parameter.wikiId});
+    </insert>
+
+    <insert id="insertRevision" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.RevisionDto">
+        INSERT INTO ACT_GE_REVISION (REVISION_, BODY_, MODIFIER_ID_, PART_ID_)
+        VALUES (#{parameter.revision}, #{parameter.body}, #{parameter.modifierId}, #{parameter.partId});
+    </insert>
+
+    <update id="updatePart" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.PartDto">
+        UPDATE ACT_GE_PART
+        SET BODY_ = #{parameter.body}
+        WHERE ID_ = #{parameter.id}
+    </update>
+
+
+</mapper>

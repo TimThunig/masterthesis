@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cockpit.sample">
+
+    <resultMap id="socialInformationMap" type="org.camunda.bpm.cockpit.plugin.sample.dto.SocialInformationDto">
+        <result property="id" column="ID_" />
+        <result property="processId" column="PROCESS_ID_" />
+        <result property="key" column="KEY_" />
+        <result property="ratingValue" column="RATING_VALUE_" />
+        <result property="ratingAbsolute" column="RATING_ABSOLUTE_" />
+        <result property="ownerId" column="OWNER_ID_"/>
+        <collection property="raters" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.RaterDto">
+            <result property="id" column="rater_social_id_"/>
+            <result property="socialInfoId" column="rater_social_info_id_" />
+            <result property="raterId" column="rater_id_" />
+            <result property="rating" column="RATING_" />
+        </collection>
+        <collection property="tags" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.TagDto">
+            <result property="id" column="tag_id_"/>
+            <result property="socialInfoId" column="tag_social_info_id_" />
+            <result property="name" column="tag_name_" />
+        </collection>
+        <collection property="developer" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.DeveloperDto">
+            <result property="id" column="dev_id_" />
+            <result property="socialInfoId" column="dev_social_info_id_" />
+            <result property="userId" column="dev_user_id_" />
+            <result property="email" column="dev_email_" />
+        </collection>
+    </resultMap>
+
+    <select id="selectSocialInformation" resultMap="socialInformationMap" parameterType="String">
+        SELECT
+          information.*,
+          raters.ID_ as rater_social_id_,
+          raters.SOCIAL_INFO_ID_ as rater_social_info_id_,
+          raters.RATING_ ,
+          raters.RATER_ID_ as rater_id_,
+          tags.ID_ as tag_id_,
+          tags.SOCIAL_INFO_ID_ as tag_social_info_id_,
+          tags.NAME_ as tag_name_,
+          dev.ID_ as dev_id_,
+          dev.SOCIAL_INFO_ID_ as dev_social_info_id_,
+          dev.USER_ID_ as dev_user_id_,
+          dev.EMAIL_ as dev_email_
+        FROM ACT_GE_SOCIAL_INFORMATION information
+        LEFT JOIN ACT_GE_RATER raters
+          ON raters.SOCIAL_INFO_ID_ = information.ID_
+        LEFT JOIN ACT_GE_TAGS  tags
+          ON tags.SOCIAL_INFO_ID_ = information.ID_
+        LEFT JOIN ACT_GE_DEVELOPER dev
+          ON dev.SOCIAL_INFO_ID_ = information.ID_
+        WHERE information.PROCESS_ID_ = #{parameter};
+
+    </select>
+
+    <insert id="insertSocialInformation" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.SocialInformationDto">
+        INSERT INTO ACT_GE_SOCIAL_INFORMATION (PROCESS_ID_, KEY_, OWNER_ID_)
+        VALUES (#{parameter.processId}, #{parameter.key}, #{parameter.ownerId});
+    </insert>
+
+    <update id="updateSocialInformation" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.SocialInformationDto">
+        UPDATE ACT_GE_SOCIAL_INFORMATION
+        SET RATING_VALUE_ = #{parameter.ratingValue}, RATING_ABSOLUTE_ = #{parameter.ratingAbsolute}, OWNER_ID_ = #{parameter.ownerId}
+        WHERE PROCESS_ID_ = #{parameter.processId};
+    </update>
+
+    <update id="updateRater" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.RaterDto">
+        UPDATE ACT_GE_RATER
+        SET RATING_ = #{parameter.rating}
+        WHERE RATER_ID_= #{parameter.raterId} AND SOCIAL_INFO_ID_ = #{parameter.socialInfoId};
+    </update>
+
+    <insert id="insertRater" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.RaterDto">
+        INSERT INTO ACT_GE_RATER (SOCIAL_INFO_ID_, RATER_ID_, RATING_)
+        VALUES (#{parameter.socialInfoId}, #{parameter.raterId}, #{parameter.rating});
+    </insert>
+
+    <insert id="insertTag" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.TagDto">
+        INSERT INTO ACT_GE_TAGS (SOCIAL_INFO_ID_, NAME_)
+        VALUES (#{parameter.socialInfoId}, #{parameter.name});
+    </insert>
+
+    <delete id="deleteTag" parameterType="int">
+        DELETE FROM ACT_GE_TAGS
+        WHERE ID_ = #{parameter};
+    </delete>
+
+    <insert id="insertDeveloper" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.TagDto">
+        INSERT INTO ACT_GE_DEVELOPER (SOCIAL_INFO_ID_, USER_ID_, EMAIL_)
+        VALUES (#{parameter.socialInfoId}, #{parameter.userId}, #{parameter.email});
+    </insert>
+
+    <delete id="deleteDeveloper" parameterType="int">
+        DELETE FROM ACT_GE_DEVELOPER
+        WHERE ID_ = #{parameter};
+    </delete>
+
+
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cockpit.sample">
+
+    <resultMap id="reportMap" type="org.camunda.bpm.cockpit.plugin.sample.dto.ReportDto">
+        <result property="id" column="ID_" />
+        <result property="processId" column="PROCESS_ID_" />
+        <result property="creationTime" column="CREATION_TIME_" />
+        <result property="topic" column="TOPIC_" />
+        <result property="message" column="MESSAGE_" />
+        <result property="reporterId" column="REPORTER_ID_"/>
+        <result property="status" column="STATUS_" />
+        <result property="upvotes" column="UPVOTES_" />
+        <result property="type" column="TYPE_" />
+        <collection property="comments" ofType="org.camunda.bpm.cockpit.plugin.sample.dto.CommentDto">
+            <id property="id" column="comment_id_"/>
+            <result property="reporterId" column="comment_reporter_id_" />
+            <result property="creationTime" column="comment_creation_time_" />
+            <result property="message" column="comment_message_" />
+            <result property="reportId" column="REPORT_ID_" />
+        </collection>
+    </resultMap>
+
+    <select id="selectReport" resultMap="reportMap" parameterType="String">
+        SELECT
+        report.*,
+        comment.ID_ as comment_id_,
+        comment.REPORTER_ID_ as comment_reporter_id_,
+        comment.CREATION_TIME_ as comment_creation_time_,
+        comment.MESSAGE_ as comment_message_,
+        comment.REPORT_ID_
+        FROM ACT_GE_REPORT report
+        LEFT JOIN ACT_GE_COMMENT comment
+        ON report.ID_ = comment.REPORT_ID_
+        WHERE report.PROCESS_ID_ = #{parameter};
+    </select>
+
+    <insert id="insertReport" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.ReportDto">
+        INSERT INTO ACT_GE_REPORT (PROCESS_ID_, TOPIC_, MESSAGE_, REPORTER_ID_, STATUS_, UPVOTES_, TYPE_)
+        VALUES (#{parameter.processId}, #{parameter.topic}, #{parameter.message}, #{parameter.reporterId}, #{parameter.status}, #{parameter.upvotes}, #{parameter.type});
+    </insert>
+
+    <insert id="insertComment" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.CommentDto">
+        INSERT INTO ACT_GE_COMMENT (REPORTER_ID_, MESSAGE_, REPORT_ID_)
+        VALUES (#{parameter.reporterId}, #{parameter.message}, #{parameter.reportId});
+    </insert>
+
+    <update id="updateReport" parameterType="org.camunda.bpm.cockpit.plugin.sample.dto.ReportDto">
+        UPDATE ACT_GE_REPORT
+        SET STATUS_ = #{parameter.status}, UPVOTES_ = #{parameter.upvotes}
+        WHERE ID_ = #{parameter.id}
+    </update>
+
+</mapper>
